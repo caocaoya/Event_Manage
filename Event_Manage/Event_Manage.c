@@ -14,7 +14,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-Event_Manage_Type   Even_Mange;
+Event_Manage_Type   Event_Mange;
 
 /*******************************************************
   * 函数功能: 注册任务统计
@@ -22,7 +22,7 @@ Event_Manage_Type   Even_Mange;
   * 返 回 值: 无
   * 说    明：无
 *******************************************************/
-uint8_t Even_Register(char *name, Event_Manage_Type * event_manage, uint8_t *register_handle)
+uint8_t Event_Register(char *name, Event_Manage_Type * event_manage, uint8_t *register_handle)
 {
     uint8_t status = REGISTER_NULL;
     
