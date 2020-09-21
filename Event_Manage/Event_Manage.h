@@ -20,19 +20,20 @@
 // }
 #else
 #define Even_Log printf
+#define Even_Log printf
 // void Even_Log(char *str)
 // {
     
 // }  
 #endif
 
-typedef struct enum
+typedef   enum
 {
     EVENT_OK,
     EVENT_ERROR
 }Status_Type;
 
-typedef struct enum
+typedef  enum
 {
     REGISTER_NULL,
     REGISTER_OK,
@@ -72,7 +73,7 @@ uint8_t Enable_Register_Table(uint8_t bit_number, uint32_t *data);
 uint8_t Disable_Register_Table(uint8_t bit_number, uint32_t *data);
 uint8_t Get_Bit_Status(uint32_t *bit_data, uint8_t bit_number);
 uint8_t Event_Task_Statistic(Event_Manage_Type * event_manage, uint8_t register_handle);
-uint8_t Even_Run_Task(uint8_t register_handle);
+uint8_t Event_Run_Task(Event_Manage_Type * event_manage, uint8_t register_handle);
 uint8_t Event_Trig(Event_Manage_Type * event_manage);
 
 
