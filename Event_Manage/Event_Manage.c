@@ -17,7 +17,19 @@
 
 Event_Manage_Type   Event_Mange;
 
-
+void Delay(unsigned int time)
+{
+	unsigned int j =0;
+	unsigned int i = 0;
+	
+    for( i = 0; i < time; i++)
+    {
+        for(j = 0; j < 100000; j++)
+		{
+			;
+		}
+    }
+}
 int  main()
 {
 	uint8_t task1_handle = 0;
@@ -34,21 +46,41 @@ int  main()
 	
 	Even_Log("Event_Mange.Event_Register = %x,   Event_Mange.Event_Tatol_Count = %d \n\n", Event_Mange.Event_Register, Event_Mange.Event_Tatol_Count);
 	
-	Event_Run_Task(&Event_Mange, task1_handle);
-	Event_Run_Task(&Event_Mange, task2_handle);
-	Event_Run_Task(&Event_Mange, task3_handle);
-	Event_Run_Task(&Event_Mange, task4_handle);
-	//Event_Run_Task(&Event_Mange, task5_handle);
-
-
-    //Event_Unregister(&Event_Mange, task1_handle);
-	//Event_Unregister(&Event_Mange, task2_handle);
-	//Event_Unregister(&Event_Mange, task3_handle);
-	//Event_Unregister(&Event_Mange, task4_handle);
-	//Event_Unregister(&Event_Mange, task5_handle);
+    unsigned int time_count = 0;
+    
+    while(1)
+    {
+        Event_Run_Task(&Event_Mange, task1_handle);
+        
+        Event_Run_Task(&Event_Mange, task3_handle);
+        
+        time_count++;
+        
+        if(time_count < 5)
+        {
+        	Event_Run_Task(&Event_Mange, task2_handle);
+        	Event_Run_Task(&Event_Mange, task4_handle);
+            Event_Run_Task(&Event_Mange, task5_handle);
+        }
+        
+        Event_Trig(&Event_Mange); 
+        Delay(10);  
+		
+		if(time_count > 10)
+		{
+			Event_Unregister(&Event_Mange, task3_handle);
+			Event_Unregister(&Event_Mange, task4_handle);
+			
+			Event_Unregister(&Event_Mange, task1_handle);
+			Event_Unregister(&Event_Mange, task2_handle);
+			
+			Event_Unregister(&Event_Mange, task5_handle);
+	        Even_Log("Event_Mange.Event_Register = %x,   Event_Mange.Event_Tatol_Count = %d \n\n", Event_Mange.Event_Register, Event_Mange.Event_Tatol_Count);
+			getchar();
+		}
+			        
+    }
 	
-	
-	Event_Trig(&Event_Mange);	
 	
 	return 1;
 }
@@ -76,6 +108,10 @@ uint8_t Event_Register(char *name, Event_Manage_Type * event_manage, uint8_t *re
        Even_Log("%s\n\n",name);
        status = REGISTER_TOO_LONG; 
     }
+    else if(event_manage -> Event_Tatol_Count == 0)
+    {
+        goto WRITE_INFO;
+    }
     else
     {
         for(count = 0;count < (event_manage -> Event_Tatol_Count); count ++)
@@ -85,14 +121,6 @@ uint8_t Event_Register(char *name, Event_Manage_Type * event_manage, uint8_t *re
            {
                flag_same_name = 1;
                break;
-           }  
-           //标志位是空的！
-           if( !(flag_enable)  &&  !(Get_Bit_Status(&(event_manage -> Event_Register),count) )   && 
-		       ((event_manage -> Event_Tatol_Count) < EVENT_MAX)  &&  
-			   (Get_Bit_Status(&(event_manage -> Event_Register),EVENT_MAX)) )
-           {
-               number_count = count;
-               flag_enable = 1;
            }               
         }
 
@@ -104,23 +132,13 @@ uint8_t Event_Register(char *name, Event_Manage_Type * event_manage, uint8_t *re
         }
         else
         {
-            
-            if(flag_enable)
-            {
-                strcpy( event_manage -> Task_Param.Task_Param_Status[number_count].Task_Name, name);
-            
-                Enable_Register_Table(number_count, &(event_manage -> Event_Register));
-                
-                *register_handle = number_count;
-                Even_Log("%d register ok1 \n\n",*register_handle);
-            }
-            else
+        WRITE_INFO:
             {
                 strcpy(event_manage -> Task_Param.Task_Param_Status[event_manage -> Event_Tatol_Count].Task_Name, name);
             
                 Enable_Register_Table(event_manage -> Event_Tatol_Count, &(event_manage -> Event_Register));
 
-                *register_handle = event_manage -> Event_Tatol_Count;  
+                *register_handle = (event_manage -> Event_Tatol_Count);  
                 Even_Log("%d register ok \n\n",*register_handle);
             }
 
@@ -246,7 +264,8 @@ uint8_t Event_Trig(Event_Manage_Type * event_manage)
 
     if( ((event_manage -> Event_Register) & (event_manage -> Event_Run_Status) == (event_manage -> Event_Register) ))
     {
-    	Even_Log("Event_Trig is ok.\n",count);
+    	Even_Log("Event_Trig is ok.\n");
+        event_manage -> Event_Run_Status = 0;
         return 0;
     }
     else
